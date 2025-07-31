@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blueprint: High-Assurance Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: A single-page, vertically scrolling dashboard with a sticky navigation header. The structure is designed to guide the user from the high-level verdict to the granular details of the implementation blueprint. The flow is: 1. Executive Verdict (immediate takeaway), 2. Comparative Deep Dive (interactive data), 3. Hardened Blueprint (interactive architectural diagram), 4. Defense-in-Depth Strategy (layered visual explanation). This non-linear but guided structure was chosen to make the dense report content digestible and engaging, allowing users to explore sections based on their interest while still following a logical narrative from 'why' to 'how'. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Developer Adoption (React vs. Vue) -> Goal: Compare -> Viz: Doughnut Chart -> Interaction: Hover tooltips -> Justification: Clear proportional comparison -> Library: Chart.js.
+        - Report Info: Strategic Comparison Table -> Goal: Compare/Organize -> Viz: Interactive HTML Table -> Interaction: Clickable tabs to filter criteria -> Justification: Allows users to focus on specific decision factors like 'Security' or 'Cost' -> Method: HTML/Tailwind/JS.
+        - Report Info: Hardened React Architecture -> Goal: Organize/Inform -> Viz: Interactive Diagram -> Interaction: Click on components to show details -> Justification: Visually explains complex system structure in an engaging way -> Method: HTML/Tailwind/JS.
+        - Report Info: Defense-in-Depth Layers -> Goal: Inform/Organize -> Viz: Layered Card UI -> Interaction: Hover to highlight and reveal details -> Justification: Creates a tangible metaphor for the layered security concept -> Method: HTML/Tailwind/JS.
+        - CONFIRMING NO SVG/Mermaid. All visuals are HTML/CSS or Canvas-based. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #3D405B;
+        }
+        .nav-active {
+            color: #E07A5F;
+            border-bottom-color: #E07A5F;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover {
+            color: #E07A5F;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .blueprint-node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .blueprint-node.active, .blueprint-node:hover {
+            border-color: #E07A5F;
+            background-color: #FFF8F6;
+        }
+        .defense-layer {
+            transition: all 0.3s ease-in-out;
+        }
+        .defense-group:hover .defense-layer-1 { transform: translateY(-20px) scale(1.05); z-index: 30; }
+        .defense-group:hover .defense-layer-2 { transform: translateY(-10px) scale(1.02); z-index: 20; }
+        .defense-group:hover .defense-layer-3 { z-index: 10; }
+        .comparison-tab.active {
+            background-color: #3D405B;
+            color: #ffffff;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="header" class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-gray-800">Secure Frontend Blueprint</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#verdict" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">The Verdict</a>
+                        <a href="#comparison" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Comparison</a>
+                        <a href="#blueprint" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Blueprint</a>
+                        <a href="#defense" class="nav-link px-3 py-2 text-sm font-medium text-gray-600">Defense Strategy</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        
+        <!-- Section 1: The Verdict -->
+        <section id="verdict" class="scroll-mt-24 mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">The Strategic Recommendation</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">For high-assurance intelligence platforms, the choice of technology is a critical risk management decision. This analysis concludes with a definitive recommendation based on security, auditability, and long-term viability.</p>
+            </div>
+            
+            <div class="card p-8 bg-gray-50">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="text-center md:text-left">
+                        <p class="text-sm font-semibold uppercase tracking-wider text-orange-600">The Defensible Choice</p>
+                        <h3 class="mt-2 text-4xl font-bold text-cyan-500">React</h3>
+                        <p class="mt-4 text-lg text-gray-700">React is the conclusive recommendation. Its library-based nature forces deliberate, auditable architectural choices, a critical security feature. The vast, enterprise-hardened ecosystem provides a more defensible foundation for applications operating in sensitive environments.</p>
+                        <div class="mt-6 space-y-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 h-6 w-6 text-green-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                </div>
+                                <p class="ml-3 text-base text-gray-600"><strong class="font-semibold text-gray-800">Architectural Defensibility:</strong> Forces conscious, auditable decisions over implicit trust.</p>
+                            </div>
+                             <div class="flex items-start">
+                                <div class="flex-shrink-0 h-6 w-6 text-green-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                </div>
+                                <p class="ml-3 text-base text-gray-600"><strong class="font-semibold text-gray-800">Superior Auditability:</strong> Redux middleware provides a purpose-built pattern for comprehensive logging.</p>
+                            </div>
+                             <div class="flex items-start">
+                                <div class="flex-shrink-0 h-6 w-6 text-green-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                                </div>
+                                <p class="ml-3 text-base text-gray-600"><strong class="font-semibold text-gray-800">Mature Ecosystem:</strong> Access to a larger pool of hardened, enterprise-vetted libraries and talent.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="adoptionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-20 border-gray-200">
+
+        <!-- Section 2: Comparison Deep Dive -->
+        <section id="comparison" class="scroll-mt-24 mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Comparative Deep Dive</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">This section provides an interactive comparison of React and Vue.js across the key operational constraints for this mission. Use the tabs to filter the comparison criteria.</p>
+            </div>
+            
+            <div class="card p-6 md:p-8">
+                <div class="mb-6 flex justify-center flex-wrap gap-2">
+                    <button class="comparison-tab px-4 py-2 text-sm font-medium rounded-md transition active" data-filter="all">All Factors</button>
+                    <button class="comparison-tab px-4 py-2 text-sm font-medium rounded-md transition" data-filter="security">Security</button>
+                    <button class="comparison-tab px-4 py-2 text-sm font-medium rounded-md transition" data-filter="auditability">Auditability</button>
+                    <button class="comparison-tab px-4 py-2 text-sm font-medium rounded-md transition" data-filter="cost">Cost-Effectiveness</button>
+                    <button class="comparison-tab px-4 py-2 text-sm font-medium rounded-md transition" data-filter="viability">Viability</button>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Factor</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">React Assessment</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vue.js Assessment</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparison-table-body" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-20 border-gray-200">
+
+        <!-- Section 3: The Hardened Blueprint -->
+        <section id="blueprint" class="scroll-mt-24 mb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">The Hardened React Blueprint</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">This is the actionable implementation plan for the recommended React architecture. Click on each component of the diagram to explore its role and security considerations.</p>
+            </div>
+
+            <div class="card p-6 md:p-8">
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <h3 class="text-xl font-semibold mb-4 text-center">Application Architecture Diagram</h3>
+                        <div class="bg-gray-50 p-6 rounded-lg grid grid-cols-2 gap-4 text-center text-sm font-medium">
+                            <div class="col-span-2 p-4 rounded-md bg-orange-100 text-orange-800">Browser (Client Runtime)</div>
+                            
+                            <div class="blueprint-node col-span-2 p-4 rounded-md bg-cyan-100 text-cyan-800 active" data-node="react-app">
+                                React Application
+                                <div class="grid grid-cols-2 gap-2 mt-2">
+                                    <div class="blueprint-node p-2 rounded-md bg-white" data-node="components">UI Components</div>
+                                    <div class="blueprint-node p-2 rounded-md bg-white" data-node="hooks">Custom Hooks</div>
+                                </div>
+                            </div>
+                            
+                            <div class="blueprint-node p-4 rounded-md bg-purple-100 text-purple-800" data-node="redux">
+                                Redux Toolkit Store
+                                <div class="mt-1 text-xs">(Single Source of Truth)</div>
+                            </div>
+                            
+                            <div class="blueprint-node p-4 rounded-md bg-green-100 text-green-800" data-node="echarts">
+                                Apache ECharts
+                                <div class="mt-1 text-xs">(Data Visualization)</div>
+                            </div>
+
+                            <div class="col-span-2 text-gray-400 text-2xl font-thin flex justify-around items-center my-2">
+                                <span>&#8595;&#8593;</span>
+                                <span>&#8595;&#8593;</span>
+                            </div>
+
+                            <div class="blueprint-node p-4 rounded-md bg-yellow-100 text-yellow-800" data-node="middleware">
+                                Audit Middleware
+                                <div class="mt-1 text-xs">(Action Logging)</div>
+                            </div>
+                            
+                            <div class="blueprint-node p-4 rounded-md bg-red-100 text-red-800" data-node="api-client">
+                                Secure API Client
+                                <div class="mt-1 text-xs">(Axios Interceptors)</div>
+                            </div>
+
+                            <div class="col-span-2 text-gray-400 text-2xl font-thin flex justify-center items-center my-2">
+                                <span>&#8595;&#8593;</span>
+                            </div>
+
+                            <div class="col-span-2 p-4 rounded-md bg-gray-200 text-gray-700">Secure Backend Services</div>
+                        </div>
+                    </div>
+                    <div id="blueprint-details" class="bg-gray-50 rounded-lg p-6">
+                        <!-- Details will be injected here by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-20 border-gray-200">
+
+        <!-- Section 4: Defense-in-Depth Strategy -->
+        <section id="defense" class="scroll-mt-24">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold tracking-tight">Defense-in-Depth Strategy</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">A secure frontend requires a multi-layered strategy. Hover over each layer to understand its purpose in protecting the application and its data.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="defense-group card p-6 text-center">
+                    <div class="relative h-24 mb-4 flex justify-center items-center">
+                        <div class="defense-layer defense-layer-3 absolute w-32 h-32 bg-red-200 rounded-full"></div>
+                        <div class="defense-layer defense-layer-2 absolute w-24 h-24 bg-yellow-200 rounded-full"></div>
+                        <div class="defense-layer defense-layer-1 absolute w-16 h-16 bg-green-200 rounded-full flex items-center justify-center">
+                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-green-800"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold">Software Supply Chain (SCA)</h3>
+                    <p class="mt-2 text-sm text-gray-600">Secure dependencies with `npm ci` and automated vulnerability scanning using tools like Snyk to prevent attacks through third-party packages.</p>
+                </div>
+
+                <div class="defense-group card p-6 text-center">
+                     <div class="relative h-24 mb-4 flex justify-center items-center">
+                        <div class="defense-layer defense-layer-3 absolute w-32 h-32 bg-red-200 rounded-full"></div>
+                        <div class="defense-layer defense-layer-2 absolute w-24 h-24 bg-yellow-200 rounded-full"></div>
+                        <div class="defense-layer defense-layer-1 absolute w-16 h-16 bg-green-200 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-green-800"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold">Client-Side Runtime Hardening</h3>
+                    <p class="mt-2 text-sm text-gray-600">Implement a strict Content Security Policy (CSP) and Subresource Integrity (SRI) to protect against XSS and malicious script injection at runtime.</p>
+                </div>
+
+                <div class="defense-group card p-6 text-center">
+                     <div class="relative h-24 mb-4 flex justify-center items-center">
+                        <div class="defense-layer defense-layer-3 absolute w-32 h-32 bg-red-200 rounded-full"></div>
+                        <div class="defense-layer defense-layer-2 absolute w-24 h-24 bg-yellow-200 rounded-full"></div>
+                        <div class="defense-layer defense-layer-1 absolute w-16 h-16 bg-green-200 rounded-full flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-green-800"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-semibold">Automated Security Analysis (SAST)</h3>
+                    <p class="mt-2 text-sm text-gray-600">Integrate static analysis tools like ESLint with security plugins into the CI/CD pipeline to catch insecure coding patterns before deployment.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+            <p>Interactive Blueprint generated from source report. For informational purposes only.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- Data Definitions ---
+
+            const adoptionData = {
+                labels: ['React', 'Vue.js'],
+                datasets: [{
+                    label: 'Developer Adoption',
+                    data: [39.5, 15.4],
+                    backgroundColor: ['#61DAFB', '#41B883'],
+                    hoverOffset: 4
+                }]
+            };
+
+            const comparisonData = [
+                { category: 'security', factor: 'Operational Security', react: 'Superior. Vast, enterprise-vetted ecosystem provides more hardened libraries and timely security updates.', vue: 'Adequate. Smaller, community-driven ecosystem means fewer vetted third-party options.' },
+                { category: 'auditability', factor: 'Auditability', react: 'Superior. Redux middleware is purpose-built for intercepting and logging every action and state change.', vue: 'Achievable. Plugin system can be used for logging, but the ecosystem for advanced auditing is less established.' },
+                { category: 'cost', factor: 'Cost-Effectiveness (TCO)', react: 'Favorable. Larger talent pool reduces hiring friction. Vast ecosystem lowers cost of finding pre-built solutions.', vue: 'Potentially higher TCO. Smaller talent pool can increase hiring costs. Higher maintenance risk.' },
+                { category: 'viability', factor: 'Architectural Defensibility', react: 'High. Unopinionated nature forces deliberate, conscious architectural choices, resulting in a more defensible system.', vue: 'Moderate. "Batteries-included" approach means inheriting architectural decisions and their security implications.' },
+                { category: 'viability', factor: 'Long-Term Viability', react: 'Excellent. Strong corporate backing from Meta, clear future trajectory, and proven scalability.', vue: 'Good. Strong community support but lacks corporate backing, introducing a small degree of long-term risk.' }
+            ];
+
+            const blueprintDetailsData = {
+                'react-app': {
+                    title: 'React Application Core',
+                    description: 'The foundation of the UI. It orchestrates components and hooks to create a declarative and predictable user interface. Security is enhanced by default XSS protection through JSX data binding.'
+                },
+                'components': {
+                    title: 'UI Components',
+                    description: 'Encapsulated, reusable pieces of the UI. They should be designed as pure functions of their props to be predictable and testable. Scoped styling (e.g., CSS Modules) is used to prevent style leakage.'
+                },
+                'hooks': {
+                    title: 'Custom Hooks',
+                    description: 'Reusable stateful logic that can be shared between components without changing the component hierarchy. Helps to keep components clean and focused on rendering.'
+                },
+                'redux': {
+                    title: 'Redux Toolkit Store',
+                    description: 'The single source of truth for the application\'s state. All data flows in a unidirectional pattern, making state changes predictable and easy to trace. State is immutable, preventing side effects.'
+                },
+                'echarts': {
+                    title: 'Apache ECharts',
+                    description: 'The recommended high-performance charting library. It is driven by data from the Redux store and encapsulated in a wrapper component. User interactions on charts dispatch Redux actions to maintain data flow integrity.'
+                },
+                'middleware': {
+                    title: 'Audit Middleware',
+                    description: 'A custom Redux middleware that intercepts every dispatched action. It logs the user, action, and state changes to a secure backend, creating a non-repudiable audit trail for all user activity.'
+                },
+                'api-client': {
+                    title: 'Secure API Client',
+                    description: 'A centralized module (e.g., using Axios) for all backend communication. Interceptors automatically attach auth tokens to requests and handle auth errors on responses globally, ensuring consistent security policies.'
+                }
+            };
+
+            // --- Chart.js Initialization ---
+
+            const adoptionCtx = document.getElementById('adoptionChart').getContext('2d');
+            new Chart(adoptionCtx, {
+                type: 'doughnut',
+                data: adoptionData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Developer Adoption (%)',
+                            font: { size: 16 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // --- Comparison Table Logic ---
+
+            const comparisonTableBody = document.getElementById('comparison-table-body');
+            const comparisonTabs = document.querySelectorAll('.comparison-tab');
+
+            function renderComparisonTable(filter = 'all') {
+                comparisonTableBody.innerHTML = '';
+                const filteredData = filter === 'all' ? comparisonData : comparisonData.filter(item => item.category === filter);
+                
+                filteredData.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.factor}</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${item.react}</td>
+                        <td class="px-6 py-4 whitespace-normal text-sm text-gray-500">${item.vue}</td>
+                    `;
+                    comparisonTableBody.appendChild(row);
+                });
+            }
+
+            comparisonTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    comparisonTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderComparisonTable(tab.dataset.filter);
+                });
+            });
+
+            renderComparisonTable();
+
+            // --- Blueprint Diagram Logic ---
+            
+            const blueprintNodes = document.querySelectorAll('.blueprint-node');
+            const blueprintDetailsContainer = document.getElementById('blueprint-details');
+
+            function updateBlueprintDetails(nodeKey) {
+                const details = blueprintDetailsData[nodeKey];
+                if (details) {
+                    blueprintDetailsContainer.innerHTML = `
+                        <h4 class="text-lg font-semibold mb-2">${details.title}</h4>
+                        <p class="text-sm text-gray-600">${details.description}</p>
+                    `;
+                }
+            }
+
+            blueprintNodes.forEach(node => {
+                node.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    blueprintNodes.forEach(n => n.classList.remove('active'));
+                    node.classList.add('active');
+                    updateBlueprintDetails(node.dataset.node);
+                });
+            });
+
+            updateBlueprintDetails('react-app'); // Initial state
+            
+            // --- Sticky Header & Active Nav Link Logic ---
+            const header = document.getElementById('header');
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: `-${header.offsetHeight}px 0px 0px 0px`,
+                threshold: 0.4
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('nav-active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('nav-active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Smooth scroll for nav links
+            navLinks.forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
