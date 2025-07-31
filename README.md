@@ -1,6 +1,7 @@
 # -Interactive-Data-Dashboards-with-React
 Blueprint for a High-Assurance Interactive Intelligence Dashboard: A Comparative Analysis of React and Vue.js for Secure Operations
 
+https://smcallan.github.io/-Interactive-Data-Dashboards-with-React/
 ---
 # Blueprint for a High-Assurance Interactive Intelligence Dashboard: A Comparative Analysis of React and Vue.js for Secure Operations
 Part 1: Strategic Recommendation and Justification
